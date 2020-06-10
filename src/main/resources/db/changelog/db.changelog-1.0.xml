@@ -1,0 +1,239 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="1.0.0" author="OleksandrJAN">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="films" />
+            </not>
+        </preConditions>
+        <createTable tableName="films">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(127)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="slogan" type="VARCHAR(127)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="country" type="VARCHAR(127)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="annotation" type="VARCHAR(2047)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="year" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+
+    <changeSet id="1.0.1" author="OleksandrJAN">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="humans" />
+            </not>
+        </preConditions>
+        <createTable tableName="humans">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="first_name" type="VARCHAR(127)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="VARCHAR(127)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="birth_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_films" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+
+    <changeSet id="1.0.2" author="OleksandrJAN">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="genres" />
+            </not>
+        </preConditions>
+        <createTable tableName="genres">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="genre_name" type="VARCHAR(127)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+
+    <changeSet id="1.0.3" author="OleksandrJAN">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="careers" />
+            </not>
+        </preConditions>
+        <createTable tableName="careers">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="career_name" type="VARCHAR(127)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+
+    <changeSet id="1.0.4" author="OleksandrJAN">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="film_genres" />
+            </not>
+        </preConditions>
+        <createTable tableName="film_genres">
+            <column name="film_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="genre_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="film_id"
+                                 baseTableName="film_genres"
+                                 constraintName="fk_film_genres_films"
+                                 onDelete="CASCADE"
+                                 onUpdate="CASCADE"
+                                 referencedColumnNames="id"
+                                 referencedTableName="films"
+        />
+        <addForeignKeyConstraint baseColumnNames="genre_id"
+                                 baseTableName="film_genres"
+                                 constraintName="fk_film_genres_genres"
+                                 onDelete="CASCADE"
+                                 onUpdate="CASCADE"
+                                 referencedColumnNames="id"
+                                 referencedTableName="genres"
+        />
+    </changeSet>
+
+
+    <changeSet id="1.0.5" author="OleksandrJAN">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="human_careers" />
+            </not>
+        </preConditions>
+        <createTable tableName="human_careers">
+            <column name="human_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="career_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="human_id"
+                                 baseTableName="human_careers"
+                                 constraintName="fk_human_careers_humans"
+                                 onDelete="CASCADE"
+                                 onUpdate="CASCADE"
+                                 referencedColumnNames="id"
+                                 referencedTableName="humans"
+        />
+        <addForeignKeyConstraint baseColumnNames="career_id"
+                                 baseTableName="human_careers"
+                                 constraintName="fk_human_careers_careers"
+                                 onDelete="CASCADE"
+                                 onUpdate="CASCADE"
+                                 referencedColumnNames="id"
+                                 referencedTableName="careers"
+        />
+    </changeSet>
+
+
+    <changeSet id="1.0.6" author="OleksandrJAN">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="human_genres" />
+            </not>
+        </preConditions>
+        <createTable tableName="human_genres">
+            <column name="human_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="genre_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="human_id"
+                                 baseTableName="human_genres"
+                                 constraintName="fk_human_genres_humans"
+                                 onDelete="CASCADE"
+                                 onUpdate="CASCADE"
+                                 referencedColumnNames="id"
+                                 referencedTableName="humans"
+        />
+        <addForeignKeyConstraint baseColumnNames="genre_id"
+                                 baseTableName="human_genres"
+                                 constraintName="fk_human_genres_genres"
+                                 onDelete="CASCADE"
+                                 onUpdate="CASCADE"
+                                 referencedColumnNames="id"
+                                 referencedTableName="genres"
+        />
+    </changeSet>
+
+
+
+    <changeSet id="1.0.7" author="OleksandrJAN">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="film_human_roles" />
+            </not>
+        </preConditions>
+        <createTable tableName="film_human_roles">
+            <column name="film_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="human_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="career_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="film_id"
+                                 baseTableName="film_human_roles"
+                                 constraintName="fk_film_human_roles_films"
+                                 onDelete="CASCADE"
+                                 onUpdate="CASCADE"
+                                 referencedColumnNames="id"
+                                 referencedTableName="films"
+        />
+        <addForeignKeyConstraint baseColumnNames="human_id"
+                                 baseTableName="film_human_roles"
+                                 constraintName="fk_film_human_roles_humans"
+                                 onDelete="CASCADE"
+                                 onUpdate="CASCADE"
+                                 referencedColumnNames="id"
+                                 referencedTableName="humans"
+        />
+        <addForeignKeyConstraint baseColumnNames="career_id"
+                                 baseTableName="film_human_roles"
+                                 constraintName="fk_film_human_roles_careers"
+                                 onDelete="CASCADE"
+                                 onUpdate="CASCADE"
+                                 referencedColumnNames="id"
+                                 referencedTableName="careers"
+        />
+    </changeSet>
+
+
+</databaseChangeLog>
