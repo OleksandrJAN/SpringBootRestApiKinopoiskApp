@@ -46,17 +46,6 @@ public class Human {
     Set<HumanRoleInFilm> humanRoles;
 
 
-
-//    @ManyToMany(mappedBy = "filmMainRoles", fetch = FetchType.LAZY)
-//    private List<Film> mainRolesFilms;
-//
-//    @ManyToMany(mappedBy = "filmCreators", fetch = FetchType.LAZY)
-//    private List<Film> createdFilms;
-
-
-
-
-
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name = "human_genres",
