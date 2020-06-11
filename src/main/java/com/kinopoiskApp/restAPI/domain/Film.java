@@ -1,7 +1,8 @@
 package com.kinopoiskApp.restAPI.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -12,7 +13,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "films")
-@Data
+@Getter
+@Setter
 public class Film {
 
     @Id
