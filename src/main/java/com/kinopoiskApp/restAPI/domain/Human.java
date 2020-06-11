@@ -9,7 +9,6 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -43,21 +42,6 @@ public class Human {
 
     @OneToMany(mappedBy = "human")
     @JsonBackReference
-    Set<HumanRoleInFilm> humanRoles;
-
-
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "human_genres",
-            joinColumns = @JoinColumn(name = "human_id"),
-            inverseJoinColumns = @JoinColumn(name = "genre_id"))
-    private List<Genre> humanGenres;
-
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "human_careers",
-            joinColumns = @JoinColumn(name = "human_id"),
-            inverseJoinColumns = @JoinColumn(name = "career_id"))
-    private List<Career> humanCareers;
+    private Set<HumanRoleInFilm> humanRoles;
 
 }

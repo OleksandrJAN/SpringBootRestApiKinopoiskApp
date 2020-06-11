@@ -6,7 +6,6 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -24,13 +23,8 @@ public class Career {
     private String name;
 
 
-    @ManyToMany(mappedBy = "humanCareers", fetch = FetchType.LAZY)
-    @JsonBackReference
-    private List<Human> humans;
-
-
     @OneToMany(mappedBy = "career")
     @JsonBackReference
-    Set<HumanRoleInFilm> humanRoles;
+    private Set<HumanRoleInFilm> humanRoles;
 
 }

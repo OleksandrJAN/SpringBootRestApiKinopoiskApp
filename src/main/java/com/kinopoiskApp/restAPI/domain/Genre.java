@@ -6,7 +6,7 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "genres")
@@ -25,9 +25,6 @@ public class Genre {
 
     @ManyToMany(mappedBy = "filmGenres", fetch = FetchType.LAZY)
     @JsonBackReference
-    private List<Film> films;
+    private Set<Film> films;
 
-    @ManyToMany(mappedBy = "humanGenres", fetch = FetchType.LAZY)
-    @JsonBackReference
-    private List<Human> humans;
 }
