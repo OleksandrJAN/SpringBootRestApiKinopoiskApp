@@ -235,5 +235,16 @@
         />
     </changeSet>
 
+    <changeSet id="1.0.8" author="OleksandrJAN">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="human_genres"/>
+            <and>
+                <tableExists tableName="human_careers"/>
+            </and>
+        </preConditions>
+        <dropTable tableName="human_genres"/>
+        <dropTable tableName="human_careers"/>
+        <rollback changeSetId="1.0.7" changeSetAuthor="OleksandrJAN"/>
+    </changeSet>
 
 </databaseChangeLog>
