@@ -8,7 +8,6 @@ import org.hibernate.validator.constraints.Length;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -56,6 +55,6 @@ public class Film {
             name = "film_genres",
             joinColumns = @JoinColumn(name = "film_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id"))
-    private List<Genre> filmGenres;
+    private Set<Genre> filmGenres;
 
 }
