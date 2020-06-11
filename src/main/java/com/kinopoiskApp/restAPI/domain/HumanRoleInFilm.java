@@ -12,21 +12,21 @@ import javax.persistence.*;
 public class HumanRoleInFilm {
 
     @EmbeddedId
-    HumanRoleKey id;
+    private HumanRoleKey id;
 
     @ManyToOne
     @MapsId("film_id")
     @JoinColumn(name = "film_id")
-    Film film;
+    private Film film;
 
     @ManyToOne
     @MapsId("human_id")
     @JoinColumn(name = "human_id")
-    Human human;
+    private Human human;
 
     @ManyToOne
     @MapsId("career_id")
     @JoinColumn(name = "career_id")
-    Career career;
+    private Career career;
 
 }

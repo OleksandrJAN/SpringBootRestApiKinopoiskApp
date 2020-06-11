@@ -48,7 +48,7 @@ public class Film {
 
     @OneToMany(mappedBy = "film")
     @JsonBackReference
-    Set<HumanRoleInFilm> humanRoles;
+    private Set<HumanRoleInFilm> humanRoles;
 
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
