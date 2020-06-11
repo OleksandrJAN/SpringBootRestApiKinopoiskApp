@@ -1,61 +1,39 @@
 package com.kinopoiskApp.restAPI.dto;
 
-import com.kinopoiskApp.restAPI.domain.*;
-import lombok.Data;
+import com.kinopoiskApp.restAPI.domain.Film;
+import com.kinopoiskApp.restAPI.domain.Genre;
+import com.kinopoiskApp.restAPI.domain.Human;
+import com.kinopoiskApp.restAPI.domain.HumanRoleInFilm;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Positive;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
 public class FilmDto {
 
     private Long id;
-
-    @NotBlank
-    @Length(max = 127)
     private String filmName;
-
-    @NotBlank
-    @Length(max = 127)
     private String slogan;
-
-    @NotBlank
-    @Length(max = 127)
     private String country;
-
-    @Positive
     private int year;
-
-    @NotBlank
-    @Length(max = 2047)
     private String annotation;
 
-    private List<Genre> filmGenres;
-
-    Set<HumanRoleInFilmDto> humanRoles;
+    private Set<Genre> filmGenres;
+    private Set<HumanRoleInFilmDto> humanRoles;
 
     @Getter
     @Setter
     private class HumanRoleInFilmDto {
-        private Long humanId;
-        private String humanFirstName;
-        private String humanLastName;
-        private Career career;
+        private HumanInfo humanInfo;
+        private CareerInfo humanCareerInfo;
 
-        public HumanRoleInFilmDto(HumanRoleInFilm filmRoles) {
-            this.humanId = filmRoles.getId().getHumanId();
+        HumanRoleInFilmDto(HumanRoleInFilm filmRoles) {
             Human human = filmRoles.getHuman();
-            this.humanFirstName = human.getFirstName();
-            this.humanLastName = human.getLastName();
-            this.career = filmRoles.getCareer();
+            this.humanInfo = new HumanInfo(human);
+            this.humanCareerInfo = new CareerInfo(filmRoles.getCareer());
         }
     }
 
