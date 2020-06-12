@@ -247,4 +247,12 @@
         <rollback changeSetId="1.0.7" changeSetAuthor="OleksandrJAN"/>
     </changeSet>
 
+    <changeSet id="1.0.9" author="OleksandrJAN">
+        <addColumn tableName="films" >
+            <column name="image" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

@@ -44,6 +44,11 @@ public class Film {
     @Column(name = "annotation")
     private String annotation;
 
+    @NotBlank
+    @Length(max = 255)
+    @Column(name = "image")
+    private String image;
+
 
     @OneToMany(mappedBy = "film")
     @JsonBackReference

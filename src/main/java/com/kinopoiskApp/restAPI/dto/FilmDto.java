@@ -20,6 +20,7 @@ public class FilmDto {
     private String country;
     private int year;
     private String annotation;
+    private String image;
 
     private Set<Genre> filmGenres;
     private Set<HumanRoleInFilmDto> humanRoles;
@@ -45,6 +46,7 @@ public class FilmDto {
         this.country = film.getCountry();
         this.year = film.getYear();
         this.annotation = film.getAnnotation();
+        this.image = film.getImage();
         this.filmGenres = film.getFilmGenres();
         Set<HumanRoleInFilm> humanRoles = film.getHumanRoles();
 
