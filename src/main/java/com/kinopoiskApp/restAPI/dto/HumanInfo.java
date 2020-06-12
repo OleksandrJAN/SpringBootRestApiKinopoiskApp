@@ -12,7 +12,7 @@ public class HumanInfo {
     private String humanFirstName;
     private String humanLastName;
 
-    HumanInfo(Human human) {
+    public HumanInfo(Human human) {
         this.humanId = human.getId();
         this.humanFirstName = human.getFirstName();
         this.humanLastName = human.getLastName();
