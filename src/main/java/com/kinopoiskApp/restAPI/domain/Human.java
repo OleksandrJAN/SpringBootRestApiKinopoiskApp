@@ -41,6 +41,11 @@ public class Human {
     @Positive
     private int totalFilms;
 
+    @NotBlank
+    @Length(max = 255)
+    @Column(name = "image")
+    private String image;
+
 
     @OneToMany(mappedBy = "human")
     @JsonBackReference

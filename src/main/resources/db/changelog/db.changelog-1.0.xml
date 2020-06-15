@@ -255,4 +255,12 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="1.0.10" author="OleksandrJAN">
+        <addColumn tableName="humans" >
+            <column name="image" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

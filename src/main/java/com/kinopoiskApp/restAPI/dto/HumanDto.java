@@ -17,8 +17,7 @@ public class HumanDto {
     private String lastName;
     private Date birthDate;
     private int totalFilms;
-
-    private Set<FilmAndCareerInfo> filmAndCareerInfo;
+    private String image;
 
     @Getter
     @Setter
@@ -38,6 +37,7 @@ public class HumanDto {
         this.lastName = human.getLastName();
         this.birthDate = human.getBirthDate();
         this.totalFilms = human.getTotalFilms();
+        this.image = human.getImage();
 
         // множество с Film, Human == human и Career
         Set<HumanRoleInFilm> filmAndCareerInfo = human.getHumanRoles();
