@@ -19,17 +19,7 @@ public class HumanDto {
     private int totalFilms;
     private String image;
 
-    @Getter
-    @Setter
-    private class FilmAndCareerInfo {
-        private FilmInfo filmInfo;
-        private CareerInfo careerInfo;
-
-        FilmAndCareerInfo(HumanRoleInFilm filmAndCareerInfo) {
-            this.filmInfo = new FilmInfo(filmAndCareerInfo.getFilm());
-            this.careerInfo = new CareerInfo(filmAndCareerInfo.getCareer());
-        }
-    }
+    private Set<CareerInfo> careersInfo;
 
     public HumanDto(Human human) {
         this.id = human.getId();
@@ -40,9 +30,11 @@ public class HumanDto {
         this.image = human.getImage();
 
         // множество с Film, Human == human и Career
-        Set<HumanRoleInFilm> filmAndCareerInfo = human.getHumanRoles();
-        this.filmAndCareerInfo = filmAndCareerInfo.stream().map(
-                FilmAndCareerInfo::new
+        Set<HumanRoleInFilm> humanRoles = human.getHumanRoles();
+        this.careersInfo = humanRoles.stream().map(
+                HumanRoleInFilm::getCareer
+        ).distinct().map(
+                CareerInfo::new
         ).collect(Collectors.toSet());
     }
 }
