@@ -1,11 +1,11 @@
 package com.kinopoiskApp.restAPI.dto;
 
 import com.kinopoiskApp.restAPI.domain.Film;
-import com.kinopoiskApp.restAPI.domain.Genre;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -19,7 +19,7 @@ public class FilmDto {
     private String annotation;
     private String image;
 
-    private Set<Genre> filmGenres;
+    private Set<GenreInfo> filmGenres;
 
 
     public FilmDto(Film film) {
@@ -30,6 +30,9 @@ public class FilmDto {
         this.year = film.getYear();
         this.annotation = film.getAnnotation();
         this.image = film.getImage();
-        this.filmGenres = film.getFilmGenres();
+
+        this.filmGenres = film.getFilmGenres().stream().map(
+                GenreInfo::new
+        ).collect(Collectors.toSet());
     }
 }
