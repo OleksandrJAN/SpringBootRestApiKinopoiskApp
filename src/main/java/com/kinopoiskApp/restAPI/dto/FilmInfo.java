@@ -10,7 +10,7 @@ public class FilmInfo {
     private Long filmId;
     private String filmName;
 
-    FilmInfo(Film film) {
+    public FilmInfo(Film film) {
         this.filmId = film.getId();
         this.filmName = film.getFilmName();
     }
