@@ -1,17 +1,18 @@
 package com.kinopoiskApp.restAPI.controller;
 
+import com.kinopoiskApp.restAPI.domain.Genre;
 import com.kinopoiskApp.restAPI.domain.Human;
+import com.kinopoiskApp.restAPI.domain.HumanSortType;
+import com.kinopoiskApp.restAPI.dto.FilmInfo;
 import com.kinopoiskApp.restAPI.dto.HumanDto;
 import com.kinopoiskApp.restAPI.service.HumanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -41,5 +42,27 @@ public class HumanController {
             return new ResponseEntity<>(humanDto, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("humans/{human:[\\d]+}/roles")
+    public ResponseEntity<Map<String, List<FilmInfo>>> getHumanRoles(
+            @PathVariable Human human,
+            @RequestParam HumanSortType sort,
+            @RequestParam(required = false) Genre genre
+    ) {
+        if (human != null) {
+            Map<String, List<FilmInfo>> humanRoles = humanService.getHumanRoles(human, sort, genre);
+            return new ResponseEntity<>(humanRoles, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @GetMapping("humans/{human:[\\d]+}/genres")
+    public ResponseEntity<List<String>> getHumanGenres(@PathVariable Human human) {
+        if (human != null) {
+            List<String> humanGenres = humanService.getHumanGenres(human);
+            return new ResponseEntity<>(humanGenres, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }
