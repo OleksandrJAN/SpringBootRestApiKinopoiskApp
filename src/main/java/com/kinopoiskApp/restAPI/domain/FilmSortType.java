@@ -1,5 +1,5 @@
 package com.kinopoiskApp.restAPI.domain;
 
-public enum HumanSortType {
+public enum FilmSortType {
     byName, byYear
 }
