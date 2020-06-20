@@ -4,7 +4,8 @@ import com.kinopoiskApp.restAPI.domain.Film;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Set;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
@@ -19,7 +20,7 @@ public class FilmDto {
     private String annotation;
     private String image;
 
-    private Set<GenreInfo> filmGenres;
+    private List<GenreInfo> filmGenres;
 
 
     public FilmDto(Film film) {
@@ -33,6 +34,6 @@ public class FilmDto {
 
         this.filmGenres = film.getFilmGenres().stream().map(
                 GenreInfo::new
-        ).collect(Collectors.toSet());
+        ).sorted(Comparator.comparing(GenreInfo::getName)).collect(Collectors.toList());
     }
 }
