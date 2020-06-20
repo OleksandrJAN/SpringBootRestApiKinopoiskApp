@@ -1,21 +1,22 @@
 package com.kinopoiskApp.restAPI.service;
 
-import com.kinopoiskApp.restAPI.domain.*;
+import com.kinopoiskApp.restAPI.domain.Film;
+import com.kinopoiskApp.restAPI.domain.Genre;
+import com.kinopoiskApp.restAPI.domain.Human;
+import com.kinopoiskApp.restAPI.domain.HumanRoleInFilm;
 import com.kinopoiskApp.restAPI.dto.FilmDto;
 import com.kinopoiskApp.restAPI.dto.HumanInfo;
 import com.kinopoiskApp.restAPI.repo.FilmRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.AbstractMap.SimpleEntry;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class FilmService {
@@ -27,17 +28,13 @@ public class FilmService {
         this.filmRepo = filmRepo;
     }
 
-    public List<FilmDto> getFilms(FilmSortType sortType, String country, Genre genre) {
-        List<Film> films = filmRepo.findAll();
-        Predicate<Film> filterByCountry = getFilmFilterByCountry(country);
-        Predicate<Film> filterByGenre = getFilmFilterByGenre(genre);
-        Comparator<Film> filmComparator = getFilmComparator(sortType);
-        return films.stream()
-                .filter(filterByCountry)
-                .filter(filterByGenre)
-                .sorted(filmComparator)
-                .map(FilmDto::new)
-                .collect(Collectors.toList());
+
+    public Stream<Film> getFilms() {
+        return filmRepo.findAll().stream();
+    }
+
+    public Stream<FilmDto> getFilmsDtos(Stream<Film> films) {
+        return films.map(FilmDto::new);
     }
 
     public List<String> getFilmsCountries() {
@@ -69,27 +66,9 @@ public class FilmService {
                     // return pair with film's career name and human
                     return new SimpleEntry<>(careerName, new HumanInfo(human));
                 }
+        ).sorted(
+                Entry.comparingByKey()
         ).collect(Collectors.groupingBy(Entry::getKey, Collectors.mapping(Entry::getValue, Collectors.toList())));
-    }
-
-    private Predicate<Film> getFilmFilterByCountry(String country) {
-        return film -> StringUtils.isEmpty(country) || film.getCountry().equals(country);
-    }
-
-    private Predicate<Film> getFilmFilterByGenre(Genre genre) {
-        return film -> genre == null || film.getFilmGenres().contains(genre);
-    }
-
-    public Comparator<Film> getFilmComparator(FilmSortType filmSortType) {
-        return Comparator.comparing(film -> {
-            switch (filmSortType) {
-                case byName:
-                    return film.getFilmName();
-                case byYear:
-                default:
-                    return String.valueOf(film.getYear());
-            }
-        });
     }
 
 }

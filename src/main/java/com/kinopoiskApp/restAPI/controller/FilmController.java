@@ -7,13 +7,19 @@ import com.kinopoiskApp.restAPI.dto.FilmDto;
 import com.kinopoiskApp.restAPI.dto.HumanInfo;
 import com.kinopoiskApp.restAPI.service.FilmService;
 import com.kinopoiskApp.restAPI.service.GenreService;
+import com.kinopoiskApp.restAPI.service.SortService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -21,22 +27,39 @@ public class FilmController {
 
     private final FilmService filmService;
     private final GenreService genreService;
+    private final SortService sortService;
 
     @Autowired
-    public FilmController(FilmService filmService, GenreService genreService) {
+    public FilmController(FilmService filmService, GenreService genreService, SortService sortService) {
         this.filmService = filmService;
         this.genreService = genreService;
+        this.sortService = sortService;
     }
 
     @GetMapping("films")
     public ResponseEntity<List<FilmDto>> getFilms(
-            @RequestParam FilmSortType sort,
+            @RequestParam(name = "sort") FilmSortType sortType,
             @RequestParam(name = "country", required = false) String country,
             @RequestParam(name = "genre", required = false) String genreName
     ) {
+        Stream<Film> films = filmService.getFilms();
+        // filtering by genre if needed
         Genre genre = genreService.getGenreByName(genreName);
-        List<FilmDto> films = filmService.getFilms(sort, country, genre);
-        return new ResponseEntity<>(films, HttpStatus.OK);
+        if (genre != null) {
+            Predicate<Film> filmsFilterByGenre = sortService.getFilmsFilterByGenre(genre);
+            films = films.filter(filmsFilterByGenre);
+        }
+        // filtering by country if needed
+        if (!StringUtils.isEmpty(country)) {
+            Predicate<Film> filmsFilterByCountry = sortService.getFilmsFilterByCountry(country);
+            films = films.filter(filmsFilterByCountry);
+        }
+        // sorting by HumanSortType
+        Comparator<Film> filmsComparator = sortService.getFilmsComparator(sortType);
+        films = films.sorted(filmsComparator);
+        // cast Film to FilmDto
+        List<FilmDto> filmDtos = filmService.getFilmsDtos(films).collect(Collectors.toList());
+        return new ResponseEntity<>(filmDtos, HttpStatus.OK);
     }
 
     @GetMapping("films/countries")
