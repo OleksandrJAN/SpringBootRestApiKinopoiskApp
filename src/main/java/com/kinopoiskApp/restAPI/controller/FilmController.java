@@ -4,7 +4,8 @@ import com.kinopoiskApp.restAPI.domain.Film;
 import com.kinopoiskApp.restAPI.domain.FilmSortType;
 import com.kinopoiskApp.restAPI.domain.Genre;
 import com.kinopoiskApp.restAPI.dto.FilmDto;
-import com.kinopoiskApp.restAPI.dto.HumanInfo;
+import com.kinopoiskApp.restAPI.dto.factory.FilmDtoFactory;
+import com.kinopoiskApp.restAPI.dto.links.HumanInfo;
 import com.kinopoiskApp.restAPI.service.FilmService;
 import com.kinopoiskApp.restAPI.service.GenreService;
 import com.kinopoiskApp.restAPI.service.SortService;
@@ -27,13 +28,11 @@ public class FilmController {
 
     private final FilmService filmService;
     private final GenreService genreService;
-    private final SortService sortService;
 
     @Autowired
-    public FilmController(FilmService filmService, GenreService genreService, SortService sortService) {
+    public FilmController(FilmService filmService, GenreService genreService) {
         this.filmService = filmService;
         this.genreService = genreService;
-        this.sortService = sortService;
     }
 
     @GetMapping("films")
@@ -43,19 +42,19 @@ public class FilmController {
             @RequestParam(name = "genre", required = false) String genreName
     ) {
         Stream<Film> films = filmService.getFilms();
+        // filtering by country if needed
+        if (!StringUtils.isEmpty(country)) {
+            Predicate<Film> filmsFilterByCountry = SortService.getFilmsFilterByCountry(country);
+            films = films.filter(filmsFilterByCountry);
+        }
         // filtering by genre if needed
         Genre genre = genreService.getGenreByName(genreName);
         if (genre != null) {
-            Predicate<Film> filmsFilterByGenre = sortService.getFilmsFilterByGenre(genre);
+            Predicate<Film> filmsFilterByGenre = SortService.getFilmsFilterByGenre(genre);
             films = films.filter(filmsFilterByGenre);
         }
-        // filtering by country if needed
-        if (!StringUtils.isEmpty(country)) {
-            Predicate<Film> filmsFilterByCountry = sortService.getFilmsFilterByCountry(country);
-            films = films.filter(filmsFilterByCountry);
-        }
         // sorting by HumanSortType
-        Comparator<Film> filmsComparator = sortService.getFilmsComparator(sortType);
+        Comparator<Film> filmsComparator = SortService.getFilmsComparator(sortType);
         films = films.sorted(filmsComparator);
         // cast Film to FilmDto
         List<FilmDto> filmDtos = filmService.getFilmsDtos(films).collect(Collectors.toList());
@@ -64,21 +63,16 @@ public class FilmController {
 
     @GetMapping("films/countries")
     public ResponseEntity<List<String>> getFilmsCountries() {
-        List<String> filmsCountries = filmService.getFilmsCountries();
+        Stream<Film> films = filmService.getFilms();
+        List<String> filmsCountries = filmService.getFilmsCountries(films);
         return new ResponseEntity<>(filmsCountries, HttpStatus.OK);
-    }
-
-    @GetMapping("films/genres")
-    public ResponseEntity<List<String>> getFilmsGenres() {
-        List<String> filmsGenres = filmService.getFilmsGenres();
-        return new ResponseEntity<>(filmsGenres, HttpStatus.OK);
     }
 
     @GetMapping("films/{film:[\\d]+}")
     public ResponseEntity<FilmDto> getFilm(@PathVariable Film film) {
         if (film != null) {
-            FilmDto filmsDto = new FilmDto(film);
-            return new ResponseEntity<>(filmsDto, HttpStatus.OK);
+            FilmDto filmDto = FilmDtoFactory.createFilmDto(film);
+            return new ResponseEntity<>(filmDto, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
@@ -86,6 +80,7 @@ public class FilmController {
     @GetMapping("films/{film:[\\d]+}/cast")
     public ResponseEntity<Map<String, List<HumanInfo>>> getFilmCast(@PathVariable Film film) {
         if (film != null) {
+            // get map with career name and list of humans in film
             Map<String, List<HumanInfo>> filmCast = filmService.getFilmCast(film);
             return new ResponseEntity<>(filmCast, HttpStatus.OK);
         }
