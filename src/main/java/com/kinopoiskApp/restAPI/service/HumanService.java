@@ -1,18 +1,17 @@
 package com.kinopoiskApp.restAPI.service;
 
 import com.kinopoiskApp.restAPI.domain.*;
-import com.kinopoiskApp.restAPI.dto.FilmInfo;
 import com.kinopoiskApp.restAPI.dto.HumanDto;
+import com.kinopoiskApp.restAPI.dto.factory.HumanDtoFactory;
+import com.kinopoiskApp.restAPI.dto.links.FilmInfo;
 import com.kinopoiskApp.restAPI.repo.HumanRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.AbstractMap.SimpleEntry;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -20,10 +19,12 @@ import java.util.stream.Stream;
 public class HumanService {
 
     private final HumanRepo humanRepo;
+    private final CareerService careerService;
 
     @Autowired
-    public HumanService(HumanRepo humanRepo) {
+    public HumanService(HumanRepo humanRepo, CareerService careerService) {
         this.humanRepo = humanRepo;
+        this.careerService = careerService;
     }
 
 
@@ -32,75 +33,40 @@ public class HumanService {
     }
 
     public Stream<HumanDto> getHumansDtos(Stream<Human> humans) {
-        return humans.map(HumanDto::new);
+        return humans.map(HumanDtoFactory::createHumanDto);
     }
 
-    public Set<Film> getHumanFilms(Human human) {
-        return human.getHumanRoles().stream().map(
-                HumanRoleInFilm::getFilm
-        ).collect(Collectors.toSet());
+
+    public Stream<Film> getHumanFilms(Human human) {
+        return human.getHumanRoles().stream()
+                .map(HumanRoleInFilm::getFilm)
+                .distinct();
     }
 
-    public Set<Career> getHumansCareers(Stream<Human> humans) {
-        // return set with all humans careers
-        return humans.flatMap(
-                human -> {
-                    Set<Career> humanCareer = this.getHumanCareers(human);
-                    // return set with one human's careers
-                    return humanCareer.stream();
-                }
-        ).collect(Collectors.toSet());
-    }
-
-    public Set<Career> getHumanCareers(Human human) {
-        Set<HumanRoleInFilm> humanFilms = human.getHumanRoles();
-        // return set with one human's genres
-        return humanFilms.stream().map(
-                HumanRoleInFilm::getCareer
-        ).collect(Collectors.toSet());
-    }
-
-    public Set<Genre> getHumansGenres(Stream<Human> humans) {
-        // return set with genres of all humans
-        return humans.flatMap(
-                human -> {
-                    Set<Genre> humanGenres = this.getHumanGenres(human);
-                    return humanGenres.stream();
-                }
-        ).collect(Collectors.toSet());
-    }
-
-    public Set<Genre> getHumanGenres(Human human) {
-        Set<HumanRoleInFilm> humanFilms = human.getHumanRoles();
-        // return set with one human's genres
-        return humanFilms.stream().flatMap(
-                humanRoleInFilm -> {
+    public Stream<Genre> getHumanGenres(Human human) {
+        return human.getHumanRoles().stream()
+                .flatMap(humanRoleInFilm -> {
                     Film film = humanRoleInFilm.getFilm();
                     return film.getFilmGenres().stream();
-                }
-        ).collect(Collectors.toSet());
+                })
+                .distinct();
     }
 
-
-    private Collection<Career> getCareersInFilm(Human human, Film film) {
-        return film.getHumanRoles().stream()
-                .filter(humanRoleInFilm -> humanRoleInFilm.getHuman().equals(human))
-                .map(HumanRoleInFilm::getCareer)
-                .collect(Collectors.toSet());
-    }
 
     public Map<String, List<FilmInfo>> getHumanCareersWithFilmsMap(Human human, Stream<Film> humanFilms) {
         // grouping list of films by career name; return map with key career name and list of films
         return humanFilms
-                .flatMap(
-                        film -> {
-                            Collection<Career> careersInFilm = this.getCareersInFilm(human, film);
-                            // return list of pair with career name and film info
-                            return careersInFilm.stream().map(
-                                    career -> new SimpleEntry<>(career.getName(), new FilmInfo(film))
-                            ).collect(Collectors.toList()).stream();
-                        }
-                ).collect(Collectors.groupingBy(Entry::getKey, Collectors.mapping(Entry::getValue, Collectors.toList())));
+                .flatMap(film -> {
+                    Stream<Career> careersInFilm = careerService.getHumanCareersInFilm(human, film);
+                    // return list of pair with career name and film info
+                    return careersInFilm
+                            .map(career -> new SimpleEntry<>(career.getName(), new FilmInfo(film)))
+                            .collect(Collectors.toList()).stream();
+                })
+                .collect(Collectors.groupingBy(
+                        Entry::getKey,
+                        Collectors.mapping(Entry::getValue, Collectors.toList())
+                ));
     }
 
 }
