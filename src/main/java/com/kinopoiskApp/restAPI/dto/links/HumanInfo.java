@@ -1,4 +1,4 @@
-package com.kinopoiskApp.restAPI.dto;
+package com.kinopoiskApp.restAPI.dto.links;
 
 import com.kinopoiskApp.restAPI.domain.Human;
 import lombok.EqualsAndHashCode;
