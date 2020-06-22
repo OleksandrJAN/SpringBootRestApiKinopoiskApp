@@ -1,16 +1,15 @@
 package com.kinopoiskApp.restAPI.dto;
 
-import com.kinopoiskApp.restAPI.domain.Human;
-import com.kinopoiskApp.restAPI.domain.HumanRoleInFilm;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class HumanDto {
     private Long id;
     private String firstName;
@@ -19,22 +18,6 @@ public class HumanDto {
     private int totalFilms;
     private String image;
 
-    private Set<CareerInfo> careersInfo;
+    private List<String> humanCareers;
 
-    public HumanDto(Human human) {
-        this.id = human.getId();
-        this.firstName = human.getFirstName();
-        this.lastName = human.getLastName();
-        this.birthDate = human.getBirthDate();
-        this.totalFilms = human.getTotalFilms();
-        this.image = human.getImage();
-
-        // множество с Film, Human == human и Career
-        Set<HumanRoleInFilm> humanRoles = human.getHumanRoles();
-        this.careersInfo = humanRoles.stream().map(
-                HumanRoleInFilm::getCareer
-        ).distinct().map(
-                CareerInfo::new
-        ).collect(Collectors.toSet());
-    }
 }
