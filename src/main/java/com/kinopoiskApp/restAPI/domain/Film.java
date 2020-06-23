@@ -30,11 +30,6 @@ public class Film {
     @Column(name = "slogan")
     private String slogan;
 
-    @NotBlank
-    @Length(max = 127)
-    @Column(name = "country")
-    private String country;
-
     @Column(name = "year")
     @Positive
     private int year;
@@ -61,5 +56,12 @@ public class Film {
             joinColumns = @JoinColumn(name = "film_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id"))
     private Set<Genre> filmGenres;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "film_countries",
+            joinColumns = @JoinColumn(name = "film_id"),
+            inverseJoinColumns = @JoinColumn(name = "country_id"))
+    private Set<Country> filmCountries;
 
 }
