@@ -11,8 +11,8 @@ import java.util.stream.Collectors;
 @Service
 public class SortService {
 
-    public static Predicate<Film> getFilmsFilterByCountry(String country) {
-        return film -> film.getCountry().equals(country);
+    public static Predicate<Film> getFilmsFilterByCountry(Country country) {
+        return film -> film.getFilmCountries().contains(country);
     }
 
     public static Predicate<Film> getFilmsFilterByGenre(Genre genre) {
@@ -20,16 +20,31 @@ public class SortService {
     }
 
     public static Comparator<Film> getFilmsComparator(FilmSortType filmSortType) {
-        return Comparator.comparing(film -> {
-            switch (filmSortType) {
-                case byName:
-                    return film.getFilmName();
-                case byYear:
-                default:
-                    return String.valueOf(film.getYear());
-            }
-        });
+        switch (filmSortType) {
+            case byName:
+                return getFilmNameComparator();
+            case byYear:
+            default:
+                return getFilmYearComparator().reversed();
+        }
     }
+
+    private static Comparator<Film> getFilmNameComparator() {
+        return (o1, o2) -> {
+            String filmName1 = o1.getFilmName();
+            String filmName2 = o2.getFilmName();
+            return filmName1.compareTo(filmName2);
+        };
+    }
+
+    private static Comparator<Film> getFilmYearComparator() {
+        return (o1, o2) -> {
+            Integer year1 = o1.getYear();
+            Integer year2 = o2.getYear();
+            return year1.compareTo(year2);
+        };
+    }
+
 
 
     public static Predicate<Human> getHumansFilterByCareer(Career career) {
@@ -54,7 +69,6 @@ public class SortService {
             return genres.contains(genre);
         };
     }
-
 
     public static Comparator<Human> getHumansComparator(HumanSortType sortType) {
         switch (sortType) {
