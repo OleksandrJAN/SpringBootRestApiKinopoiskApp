@@ -1,5 +1,6 @@
 package com.kinopoiskApp.restAPI.dto.factory;
 
+import com.kinopoiskApp.restAPI.domain.Country;
 import com.kinopoiskApp.restAPI.domain.Film;
 import com.kinopoiskApp.restAPI.domain.Genre;
 import com.kinopoiskApp.restAPI.dto.FilmDto;
@@ -16,7 +17,6 @@ public class FilmDtoFactory {
         filmDto.setId(film.getId());
         filmDto.setFilmName(film.getFilmName());
         filmDto.setSlogan(film.getSlogan());
-        filmDto.setCountry(film.getCountry());
         filmDto.setYear(film.getYear());
         filmDto.setAnnotation(film.getAnnotation());
         filmDto.setImage(film.getImage());
@@ -26,6 +26,12 @@ public class FilmDtoFactory {
                 .sorted()
                 .collect(Collectors.toList());
         filmDto.setFilmGenres(genres);
+
+        List<String> countries = film.getFilmCountries().stream()
+                .map(Country::getName)
+                .sorted()
+                .collect(Collectors.toList());
+        filmDto.setFilmCountries(countries);
 
         return filmDto;
     }

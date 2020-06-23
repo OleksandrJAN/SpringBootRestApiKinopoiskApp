@@ -14,11 +14,11 @@ public class FilmDto {
     private Long id;
     private String filmName;
     private String slogan;
-    private String country;
     private int year;
     private String annotation;
     private String image;
 
     private List<String> filmGenres;
+    private List<String> filmCountries;
 
 }
