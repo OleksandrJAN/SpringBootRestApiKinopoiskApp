@@ -37,15 +37,6 @@ public class FilmService {
         return films.map(FilmDtoFactory::createFilmDto);
     }
 
-    public List<String> getFilmsCountries(Stream<Film> films) {
-        return films
-                .map(Film::getCountry)
-                .distinct()
-                .sorted()
-                .collect(Collectors.toList());
-    }
-
-
     private Stream<Human> getFilmHumans(Film film) {
         return film.getHumanRoles().stream()
                 .map(HumanRoleInFilm::getHuman)

@@ -43,16 +43,6 @@ public class HumanService {
                 .distinct();
     }
 
-    public Stream<Genre> getHumanGenres(Human human) {
-        return human.getHumanRoles().stream()
-                .flatMap(humanRoleInFilm -> {
-                    Film film = humanRoleInFilm.getFilm();
-                    return film.getFilmGenres().stream();
-                })
-                .distinct();
-    }
-
-
     public Map<String, List<FilmInfo>> getHumanCareersWithFilmsMap(Human human, Stream<Film> humanFilms) {
         // grouping list of films by career name; return map with key career name and list of films
         return humanFilms

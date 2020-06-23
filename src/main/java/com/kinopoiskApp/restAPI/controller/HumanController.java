@@ -24,7 +24,6 @@ public class HumanController {
     private final HumanService humanService;
     private final GenreService genreService;
     private final CareerService careerService;
-    private final FilmService filmService;
     private final CountryService countryService;
 
     @Autowired
@@ -32,13 +31,11 @@ public class HumanController {
             HumanService humanService,
             GenreService genreService,
             CareerService careerService,
-            FilmService filmService,
             CountryService countryService
     ) {
         this.humanService = humanService;
         this.genreService = genreService;
         this.careerService = careerService;
-        this.filmService = filmService;
         this.countryService = countryService;
     }
 
@@ -111,23 +108,4 @@ public class HumanController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping("humans/{human:[\\d]+}/films-countries")
-    public ResponseEntity<List<String>> getHumanFilmsCountries(@PathVariable Human human) {
-        if (human != null) {
-            Stream<Film> humanFilms = humanService.getHumanFilms(human);
-            List<String> filmsCountries = filmService.getFilmsCountries(humanFilms);
-            return new ResponseEntity<>(filmsCountries, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
-
-    @GetMapping("humans/{human:[\\d]+}/films-genres")
-    public ResponseEntity<List<String>> getHumanFilmsGenres(@PathVariable Human human) {
-        if (human != null) {
-            Stream<Genre> humanGenres = humanService.getHumanGenres(human);
-            List<String> genresNames = genreService.getGenresNames(humanGenres);
-            return new ResponseEntity<>(genresNames, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
 }
