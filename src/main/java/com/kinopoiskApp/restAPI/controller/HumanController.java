@@ -8,7 +8,6 @@ import com.kinopoiskApp.restAPI.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Comparator;
@@ -26,18 +25,21 @@ public class HumanController {
     private final GenreService genreService;
     private final CareerService careerService;
     private final FilmService filmService;
+    private final CountryService countryService;
 
     @Autowired
     public HumanController(
             HumanService humanService,
             GenreService genreService,
             CareerService careerService,
-            FilmService filmService
+            FilmService filmService,
+            CountryService countryService
     ) {
         this.humanService = humanService;
         this.genreService = genreService;
         this.careerService = careerService;
         this.filmService = filmService;
+        this.countryService = countryService;
     }
 
 
@@ -82,13 +84,14 @@ public class HumanController {
     public ResponseEntity<Map<String, List<FilmInfo>>> getHumanFilms(
             @PathVariable Human human,
             @RequestParam(name = "sort") FilmSortType sortType,
-            @RequestParam(name = "country", required = false) String country,
+            @RequestParam(name = "country", required = false) String countryName,
             @RequestParam(name = "genre", required = false) String genre
     ) {
         if (human != null) {
             Stream<Film> films = humanService.getHumanFilms(human);
             // filtering by country if needed
-            if (!StringUtils.isEmpty(country)) {
+            Country country = countryService.getCountryByName(countryName);
+            if (country != null) {
                 Predicate<Film> filmsFilterByCountry = SortService.getFilmsFilterByCountry(country);
                 films = films.filter(filmsFilterByCountry);
             }
