@@ -6,7 +6,7 @@
     <changeSet id="1.0.0" author="OleksandrJAN">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="films" />
+                <tableExists tableName="films"/>
             </not>
         </preConditions>
         <createTable tableName="films">
@@ -35,7 +35,7 @@
     <changeSet id="1.0.1" author="OleksandrJAN">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="humans" />
+                <tableExists tableName="humans"/>
             </not>
         </preConditions>
         <createTable tableName="humans">
@@ -61,7 +61,7 @@
     <changeSet id="1.0.2" author="OleksandrJAN">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="genres" />
+                <tableExists tableName="genres"/>
             </not>
         </preConditions>
         <createTable tableName="genres">
@@ -78,7 +78,7 @@
     <changeSet id="1.0.3" author="OleksandrJAN">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="careers" />
+                <tableExists tableName="careers"/>
             </not>
         </preConditions>
         <createTable tableName="careers">
@@ -95,7 +95,7 @@
     <changeSet id="1.0.4" author="OleksandrJAN">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="film_genres" />
+                <tableExists tableName="film_genres"/>
             </not>
         </preConditions>
         <createTable tableName="film_genres">
@@ -128,7 +128,7 @@
     <changeSet id="1.0.5" author="OleksandrJAN">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="human_careers" />
+                <tableExists tableName="human_careers"/>
             </not>
         </preConditions>
         <createTable tableName="human_careers">
@@ -161,7 +161,7 @@
     <changeSet id="1.0.6" author="OleksandrJAN">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="human_genres" />
+                <tableExists tableName="human_genres"/>
             </not>
         </preConditions>
         <createTable tableName="human_genres">
@@ -191,11 +191,10 @@
     </changeSet>
 
 
-
     <changeSet id="1.0.7" author="OleksandrJAN">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="film_human_roles" />
+                <tableExists tableName="film_human_roles"/>
             </not>
         </preConditions>
         <createTable tableName="film_human_roles">
@@ -248,7 +247,7 @@
     </changeSet>
 
     <changeSet id="1.0.9" author="OleksandrJAN">
-        <addColumn tableName="films" >
+        <addColumn tableName="films">
             <column name="image" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
@@ -256,11 +255,97 @@
     </changeSet>
 
     <changeSet id="1.0.10" author="OleksandrJAN">
-        <addColumn tableName="humans" >
+        <addColumn tableName="humans">
             <column name="image" type="varchar(255)">
                 <constraints nullable="false"/>
             </column>
         </addColumn>
+    </changeSet>
+
+
+    <changeSet id="1.1.0" author="OleksandrJAN">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="countries"/>
+            </not>
+        </preConditions>
+        <createTable tableName="countries">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(127)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="1.1.1" author="OleksandrJAN">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="film_countries"/>
+            </not>
+        </preConditions>
+        <createTable tableName="film_countries">
+            <column name="film_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="country_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="film_id"
+                                 baseTableName="film_countries"
+                                 constraintName="fk_film_countries_films"
+                                 onDelete="CASCADE"
+                                 onUpdate="CASCADE"
+                                 referencedColumnNames="id"
+                                 referencedTableName="films"
+        />
+        <addForeignKeyConstraint baseColumnNames="country_id"
+                                 baseTableName="film_countries"
+                                 constraintName="fk_film_countries_countries"
+                                 onDelete="CASCADE"
+                                 onUpdate="CASCADE"
+                                 referencedColumnNames="id"
+                                 referencedTableName="countries"
+        />
+    </changeSet>
+
+    <changeSet id="1.1.2" author="OleksandrJAN">
+        <renameColumn columnDataType="VARCHAR(127)"
+                      newColumnName="country_name"
+                      oldColumnName="name"
+                      tableName="countries"/>
+    </changeSet>
+
+    <changeSet id="1.1.3" author="OleksandrJAN">
+        <sql>
+            INSERT INTO film_countries (film_id,country_id)
+            SELECT f.id, c.id FROM films f
+            INNER JOIN countries c ON f.country = c.country_name;
+        </sql>
+        <rollback>
+            UPDATE film_countries SET film_id = NULL;
+            UPDATE film_countries SET country_id = NULL;
+        </rollback>
+    </changeSet>
+
+    <changeSet id="1.1.4" author="OleksandrJAN">
+        <dropColumn tableName="films" columnName="country"/>
+        <rollback>
+            <addColumn tableName="films">
+                <column name="country" type="VARCHAR(127)">
+                    <constraints nullable="false"/>
+                </column>
+            </addColumn>
+            <sql>
+                UPDATE films SET country = (
+                    SELECT c.country_name FROM countries c
+                    INNER JOIN film_countries fc ON fc.country_id = c.id
+                    WHERE films.id = fc.film_id LIMIT 1
+                );
+            </sql>
+        </rollback>
     </changeSet>
 
 </databaseChangeLog>
