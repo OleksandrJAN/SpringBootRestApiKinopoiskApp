@@ -6,6 +6,8 @@ import com.kinopoiskApp.restAPI.dto.factory.FilmDtoFactory;
 import com.kinopoiskApp.restAPI.dto.links.HumanInfo;
 import com.kinopoiskApp.restAPI.repo.FilmRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.AbstractMap.SimpleEntry;
@@ -29,11 +31,27 @@ public class FilmService {
     }
 
 
-    public Stream<Film> getFilms() {
-        return filmRepo.findAll().stream();
+    public Page<Film> getFilms(Country country, Genre genre, Pageable pageable) {
+        // TODO refactor
+        boolean filteringByCountryAndGenre = country != null && genre != null;
+        if (filteringByCountryAndGenre) {
+            return filmRepo.findByFilmCountriesAndFilmGenres(country, genre, pageable);
+        }
+
+        boolean noFiltering = country == null && genre == null;
+        if (noFiltering) {
+            return filmRepo.findAll(pageable);
+        }
+
+        boolean filteringByCountry = country != null;
+        if (filteringByCountry) {
+            return filmRepo.findByFilmCountries(country, pageable);
+        } else {
+            return filmRepo.findByFilmGenres(genre, pageable);
+        }
     }
 
-    public Stream<FilmDto> getFilmsDtos(Stream<Film> films) {
+    public Page<FilmDto> getFilmsDtos(Page<Film> films) {
         return films.map(FilmDtoFactory::createFilmDto);
     }
 
