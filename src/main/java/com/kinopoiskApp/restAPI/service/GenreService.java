@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class GenreService {
@@ -20,19 +19,16 @@ public class GenreService {
     }
 
 
-    public Stream<Genre> getGenres() {
-        return genreRepo.findAll().stream();
+    public List<String> getGenresNames() {
+        return genreRepo.findAll()
+                .stream()
+                .map(Genre::getName)
+                .sorted()
+                .collect(Collectors.toList());
     }
 
     public Genre getGenreByName(String genreName) {
         return genreRepo.findByName(genreName);
-    }
-
-    public List<String> getGenresNames(Stream<Genre> genres) {
-        return genres
-                .map(Genre::getName)
-                .sorted()
-                .collect(Collectors.toList());
     }
 
 }

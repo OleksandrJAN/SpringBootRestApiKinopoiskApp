@@ -23,20 +23,18 @@ public class CareerService {
     }
 
 
-    public Stream<Career> getCareers() {
-        return careerRepo.findAll().stream();
+    public List<String> getCareersNames() {
+        return careerRepo.findAll()
+                .stream()
+                .map(Career::getName)
+                .sorted()
+                .collect(Collectors.toList());
     }
 
     public Career getCareerByName(String careerName) {
         return careerRepo.findByName(careerName);
     }
 
-    public List<String> getCareersNames(Stream<Career> careers) {
-        return careers
-                .map(Career::getName)
-                .sorted()
-                .collect(Collectors.toList());
-    }
 
     public Stream<Career> getHumanCareersInFilm(Human human, Film film) {
         return film.getHumanRoles().stream()
