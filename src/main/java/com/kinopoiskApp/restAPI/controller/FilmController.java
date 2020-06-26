@@ -10,32 +10,32 @@ import com.kinopoiskApp.restAPI.dto.links.HumanInfo;
 import com.kinopoiskApp.restAPI.service.CountryService;
 import com.kinopoiskApp.restAPI.service.FilmService;
 import com.kinopoiskApp.restAPI.service.GenreService;
-import com.kinopoiskApp.restAPI.service.SortService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 public class FilmController {
 
     private final FilmService filmService;
-    private final GenreService genreService;
     private final CountryService countryService;
+    private final GenreService genreService;
 
     @Autowired
-    public FilmController(FilmService filmService, GenreService genreService, CountryService countryService) {
+    public FilmController(FilmService filmService, CountryService countryService, GenreService genreService) {
         this.filmService = filmService;
-        this.genreService = genreService;
         this.countryService = countryService;
+        this.genreService = genreService;
     }
 
     @GetMapping("films")
@@ -47,12 +47,17 @@ public class FilmController {
     ) {
         Country country = countryService.getCountryByName(countryName);
         Genre genre = genreService.getGenreByName(genreName);
-        Sort filmsSort = SortService.getFilmsSort(sortType);
-        Pageable pageable = PageRequest.of(page, 5, filmsSort);
 
-        Page<Film> films = filmService.getFilms(country, genre, pageable);
-        Page<FilmDto> filmsDtos = filmService.getFilmsDtos(films);
-        return new ResponseEntity<>(filmsDtos, HttpStatus.OK);
+        // filtering and sorting humans
+        Stream<Film> filmsStream = filmService.getFilms();
+        filmsStream = filmService.filteringFilms(filmsStream, sortType, country, genre);
+        List<Film> filmsList = filmsStream.collect(Collectors.toList());
+
+        // create humans page
+        Pageable pageable = PageRequest.of(page, 5);
+        Page<Film> filmsPage = filmService.getFilmsPage(pageable, filmsList);
+        Page<FilmDto> filmsDtosPage = filmService.getFilmsDtosPage(filmsPage);
+        return new ResponseEntity<>(filmsDtosPage, HttpStatus.OK);
     }
 
     @GetMapping("films/{film:[\\d]+}")

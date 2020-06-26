@@ -20,16 +20,6 @@ public class SortService {
         return film -> film.getFilmGenres().contains(genre);
     }
 
-    public static Sort getFilmsSort(FilmSortType filmSortType) {
-        switch (filmSortType) {
-            case byName:
-                return Sort.by("filmName");
-            case byYear:
-            default:
-                return Sort.by("year").descending();
-        }
-    }
-
     public static Comparator<Film> getFilmsComparator(FilmSortType filmSortType) {
         switch (filmSortType) {
             case byName:

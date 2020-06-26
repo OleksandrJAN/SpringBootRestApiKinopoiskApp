@@ -7,6 +7,7 @@ import com.kinopoiskApp.restAPI.dto.links.HumanInfo;
 import com.kinopoiskApp.restAPI.repo.FilmRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,32 +33,51 @@ public class FilmService {
     }
 
 
-    public Page<Film> getFilms(Country country, Genre genre, Pageable pageable) {
-        // TODO refactor
-        boolean filteringByCountryAndGenre = country != null && genre != null;
-        if (filteringByCountryAndGenre) {
-            return filmRepo.findByFilmCountriesAndFilmGenres(country, genre, pageable);
-        }
-
-        boolean noFiltering = country == null && genre == null;
-        if (noFiltering) {
-            return filmRepo.findAll(pageable);
-        }
-
-        boolean filteringByCountry = country != null;
-        if (filteringByCountry) {
-            return filmRepo.findByFilmCountries(country, pageable);
-        } else {
-            return filmRepo.findByFilmGenres(genre, pageable);
-        }
+    public Stream<Film> getFilms() {
+        return filmRepo.findAll().stream();
     }
 
-    public Page<FilmDto> getFilmsDtos(Page<Film> films) {
+    public Stream<Film> getFilms(Human human) {
+        return human.getHumanRoles()
+                .stream()
+                .map(HumanRoleInFilm::getFilm)
+                .distinct();
+    }
+
+    public Stream<Film> filteringFilms(Stream<Film> films, FilmSortType sortType, Country country, Genre genre) {
+        // filtering films
+        if (country != null) {
+            Predicate<Film> filmsFilterByCountry = SortService.getFilmsFilterByCountry(country);
+            films = films.filter(filmsFilterByCountry);
+        }
+        if (genre != null) {
+            Predicate<Film> filmsFilterByGenre = SortService.getFilmsFilterByGenre(genre);
+            films = films.filter(filmsFilterByGenre);
+        }
+
+        // sorting by FilmSortType
+        Comparator<Film> filmsComparator = SortService.getFilmsComparator(sortType);
+        films = films.sorted(filmsComparator);
+        return films;
+    }
+
+
+    public Page<Film> getFilmsPage(Pageable pageable, List<Film> films) {
+        //get sub list
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), films.size());
+        List<Film> filmsSubList = films.subList(start, end);
+        return new PageImpl<>(filmsSubList, pageable, films.size());
+    }
+
+    public Page<FilmDto> getFilmsDtosPage(Page<Film> films) {
         return films.map(FilmDtoFactory::createFilmDto);
     }
 
+
     private Stream<Human> getFilmHumans(Film film) {
-        return film.getHumanRoles().stream()
+        return film.getHumanRoles()
+                .stream()
                 .map(HumanRoleInFilm::getHuman)
                 .distinct();
     }
@@ -75,7 +96,8 @@ public class FilmService {
                     // return list of pair with career name and human info
                     return careersInFilm
                             .map(career -> new SimpleEntry<>(career.getName(), new HumanInfo(human)))
-                            .collect(Collectors.toList()).stream();
+                            .collect(Collectors.toList())
+                            .stream();
                 })
                 .collect(Collectors.groupingBy(
                         Entry::getKey,
