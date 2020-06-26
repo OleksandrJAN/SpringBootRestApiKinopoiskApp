@@ -6,12 +6,17 @@ import com.kinopoiskApp.restAPI.dto.factory.HumanDtoFactory;
 import com.kinopoiskApp.restAPI.dto.links.FilmInfo;
 import com.kinopoiskApp.restAPI.repo.HumanRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.AbstractMap.SimpleEntry;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,16 +37,36 @@ public class HumanService {
         return humanRepo.findAll().stream();
     }
 
-    public Stream<HumanDto> getHumansDtos(Stream<Human> humans) {
+    public Stream<Human> filteringHumans(Stream<Human> humans, HumanSortType sortType, Career career, Genre genre) {
+        // filtering humans
+        if (career != null) {
+            Predicate<Human> humansFilterByCareer = SortService.getHumansFilterByCareer(career);
+            humans = humans.filter(humansFilterByCareer);
+        }
+        if (genre != null) {
+            Predicate<Human> humansFilterByGenre = SortService.getHumansFilterByGenre(genre);
+            humans = humans.filter(humansFilterByGenre);
+        }
+
+        // sorting by HumanSortType
+        Comparator<Human> humansComparator = SortService.getHumansComparator(sortType);
+        humans = humans.sorted(humansComparator);
+        return humans;
+    }
+
+
+    public Page<Human> getHumansPage(Pageable pageable, List<Human> humans) {
+        //get sub list
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), humans.size());
+        List<Human> humansSubList = humans.subList(start, end);
+        return new PageImpl<>(humansSubList, pageable, humans.size());
+    }
+
+    public Page<HumanDto> getHumansDtosPage(Page<Human> humans) {
         return humans.map(HumanDtoFactory::createHumanDto);
     }
 
-
-    public Stream<Film> getHumanFilms(Human human) {
-        return human.getHumanRoles().stream()
-                .map(HumanRoleInFilm::getFilm)
-                .distinct();
-    }
 
     public Map<String, List<FilmInfo>> getHumanCareersWithFilmsMap(Human human, Stream<Film> humanFilms) {
         // grouping list of films by career name; return map with key career name and list of films
@@ -51,7 +76,8 @@ public class HumanService {
                     // return list of pair with career name and film info
                     return careersInFilm
                             .map(career -> new SimpleEntry<>(career.getName(), new FilmInfo(film)))
-                            .collect(Collectors.toList()).stream();
+                            .collect(Collectors.toList())
+                            .stream();
                 })
                 .collect(Collectors.groupingBy(
                         Entry::getKey,
