@@ -1,7 +1,6 @@
 package com.kinopoiskApp.restAPI.service;
 
 import com.kinopoiskApp.restAPI.domain.*;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -50,7 +49,8 @@ public class SortService {
     public static Predicate<Human> getHumansFilterByCareer(Career career) {
         return human -> {
             // set with one human's careers
-            Set<Career> humanCareers = human.getHumanRoles().stream()
+            Set<Career> humanCareers = human.getHumanRoles()
+                    .stream()
                     .map(HumanRoleInFilm::getCareer)
                     .collect(Collectors.toSet());
             return humanCareers.contains(career);
@@ -60,7 +60,8 @@ public class SortService {
     public static Predicate<Human> getHumansFilterByGenre(Genre genre) {
         return human -> {
             // set with films genres for one human
-            Set<Genre> genres = human.getHumanRoles().stream()
+            Set<Genre> genres = human.getHumanRoles()
+                    .stream()
                     .flatMap(humanRoleInFilm -> {
                         Film film = humanRoleInFilm.getFilm();
                         return film.getFilmGenres().stream();
@@ -108,7 +109,8 @@ public class SortService {
     }
 
     private static Set<Film> getHumanFilms(Human human) {
-        return human.getHumanRoles().stream()
+        return human.getHumanRoles()
+                .stream()
                 .map(HumanRoleInFilm::getFilm)
                 .collect(Collectors.toSet());
     }
