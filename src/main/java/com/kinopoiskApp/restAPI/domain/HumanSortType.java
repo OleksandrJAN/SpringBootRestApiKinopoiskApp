@@ -1,5 +1,5 @@
 package com.kinopoiskApp.restAPI.domain;
 
 public enum HumanSortType {
-    byPopular, byName
+    byPopular, byName, byAge
 }

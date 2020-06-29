@@ -4,6 +4,7 @@ import com.kinopoiskApp.restAPI.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -75,6 +76,8 @@ public class SortService {
         switch (sortType) {
             case byName:
                 return getHumanNameComparator();
+            case byAge:
+                return getHumanAgeComparator();
             case byPopular:
             default:
                 return getHumanPopularComparator().reversed();
@@ -95,6 +98,14 @@ public class SortService {
             String lastName1 = o1.getLastName();
             String lastName2 = o2.getLastName();
             return lastName1.compareTo(lastName2);
+        };
+    }
+
+    private static Comparator<Human> getHumanAgeComparator() {
+        return (o1, o2) -> {
+            Date age1 = o1.getBirthDate();
+            Date age2 = o2.getBirthDate();
+            return age1.compareTo(age2);
         };
     }
 
